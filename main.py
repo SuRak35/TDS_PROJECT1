@@ -27,3 +27,14 @@ def run_task(task: str):
             return {"status": "error", "message": str(e)}
 
     return {"status": "error", "message": "Task not recognized"}
+
+@app.get("/read")
+def read_file(path: str = Query(..., description="File path to read")):
+    """Returns the content of the specified file."""
+    if not os.path.exists(path):
+        return {"status": "error", "message": "File not found"}
+    
+    with open(path, "r", encoding="utf-8") as file:
+        content = file.read()
+    
+    return {"status": "success", "content": content}
