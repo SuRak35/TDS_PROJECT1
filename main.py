@@ -35,6 +35,8 @@ def run_task(task: str):
 
 @app.get("/read")
 def read_file(path: str = Query(..., description="File path to read")):
+    print(f"Attempting to read file at path: {path}")  # Log the requested path
+
     if not os.path.exists(path):
         return {"status": "error", "message": "File not found"}
     
