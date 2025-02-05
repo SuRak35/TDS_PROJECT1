@@ -7,7 +7,7 @@ Due to the unpredictable nature of incoming data (from logs, ticket systems, sou
 
 Your assignment is to build an automation agent that accepts plain‑English tasks, carries out the required (multi‑step) process leveraging an LLM where required. The finished processing artifacts must be exactly verifiable against pre‑computed expected results.
 
-Create an API
+## Create an API
 Write an application that exposes an API with the following endpoints:
 
 POST /run?task=<task description> Executes a plain‑English task. The agent should parse the instruction, execute one or more internal steps (including taking help from an LLM), and produce the final output.
@@ -18,7 +18,8 @@ The body may optionally contain any useful information in each of these cases
 GET /read?path=<file path> Returns the content of the specified file. This is critical for verification of the exact output.
 If successful, return a HTTP 200 OK response with the file content as plain text
 If the file does not exist, return a HTTP 404 Not Found response and an empty body
-Phase A: Handle Operations Tasks
+
+## Phase A: Handle Operations Tasks
 The DataWorks operations team has identified these tasks that need to be automated:
 
 A1. Install uv (if required) and run https://raw.githubusercontent.com/sanand0/tools-in-data-science-public/tds-2025-01/project-1/datagen.py with ${user.email} as the only argument. (NOTE: This will generate data files required for the next tasks.)
