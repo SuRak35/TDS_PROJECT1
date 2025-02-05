@@ -1,6 +1,7 @@
 import os
 import subprocess
 import requests
+import pandas as pd
 from fastapi import FastAPI, Query
 
 app = FastAPI()
@@ -31,6 +32,23 @@ def run_task(task: str):
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
+    elif "sort" in task.lower() and "csv" in task.lower():
+        try:
+            file_path = "/data/sort.csv"
+            if not os.path.exists(file_path):
+                return {"status": "error", "message": "File not found"}
+            
+            df = pd.read_csv(file_path)
+            if 'a' not in df.columns:
+                return {"status": "error", "message": "Column 'a' not found in file"}
+            
+            df.sort_values(by="a", ascending=True, inplace=True)
+            df.to_csv(file_path, index=False)
+            
+            return {"status": "success", "message": "Task A3 completed successfully"}
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+
     return {"status": "error", "message": "Task not recognized"}
 
 @app.get("/read")
@@ -43,4 +61,4 @@ def read_file(path: str = Query(..., description="File path to read")):
     with open(path, "r", encoding="utf-8") as file:
         content = file.read()
     
-    return {"status": "success", "content": content}
+    return {"status": "success", "content": content"}
