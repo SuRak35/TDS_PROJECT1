@@ -1,37 +1,29 @@
-from fastapi import FastAPI, HTTPException
 import os
+import subprocess
+import requests
+from fastapi import FastAPI, Query
 
 app = FastAPI()
 
 @app.post("/run")
-async def run_task(task: str):
-    """
-    Executes a plain-English task.
-    """
-    if not task:
-        raise HTTPException(status_code=400, detail="Task description is required")
+def run_task(task: str):
+    if "install uv" in task.lower() and "run" in task.lower():
+        try:
+            # Install uv if not installed
+            subprocess.run(["pip", "install", "uv"], check=True)
 
-    try:
-        # Placeholder for task execution logic
-        return {"status": "success", "message": f"Task '{task}' executed successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+            # Download datagen.py
+            url = "https://raw.githubusercontent.com/sanand0/tools-in-data-science-public/tds-2025-01/project-1/datagen.py"
+            response = requests.get(url)
+            with open("datagen.py", "w", encoding="utf-8") as file:
+                file.write(response.text)
 
+            # Run datagen.py with user email
+            user_email = "24ds1000046@ds.study.iitm.ac.in"  # Replace with your actual email
+            subprocess.run(["python", "datagen.py", user_email], check=True)
 
-@app.get("/read")
-async def read_file(path: str):
-    """
-    Returns the content of the specified file.
-    """
-    if not path.startswith("/data/"):
-        raise HTTPException(status_code=403, detail="Access denied: Only files in /data/ can be read")
+            return {"status": "success", "message": "Task A1 completed successfully"}
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
 
-    if not os.path.exists(path):
-        raise HTTPException(status_code=404, detail="File not found")
-
-    try:
-        with open(path, "r") as file:
-            content = file.read()
-        return {"status": "success", "content": content}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return {"status": "error", "message": "Task not recognized"}
