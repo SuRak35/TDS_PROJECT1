@@ -2,6 +2,7 @@ import os
 import subprocess
 import requests
 import pandas as pd
+import re
 from fastapi import FastAPI, Query
 
 app = FastAPI()
@@ -46,6 +47,25 @@ def run_task(task: str):
             df.to_csv(file_path, index=False)
             
             return {"status": "success", "message": "Task A3 completed successfully"}
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+
+    elif "extract" in task.lower() and "numbers" in task.lower():
+        try:
+            input_path = "/data/extract.txt"
+            output_path = "/data/numbers.txt"
+            
+            if not os.path.exists(input_path):
+                return {"status": "error", "message": "File not found"}
+            
+            with open(input_path, "r", encoding="utf-8") as file:
+                content = file.read()
+            
+            numbers = re.findall(r'\d+', content)  # Extract numbers
+            with open(output_path, "w", encoding="utf-8") as file:
+                file.write("\n".join(numbers))  # Write each number on a new line
+            
+            return {"status": "success", "message": "Task A4 completed successfully"}
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
