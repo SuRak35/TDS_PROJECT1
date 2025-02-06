@@ -61,7 +61,7 @@ Your agent must handle these tasks as well.
 
 The business team has not promised to limit themselves to these tasks. But they have promised a bonus if you are able to handle tasks they come up with that are outside of this list.
 
-Deliverables
+## Deliverables
 Create a new public GitHub repository
 Add an MIT LICENSE file
 Write and test your code. Call POST /run?task=... with a few tasks and check if GET /read?path=... creates the correct files.
@@ -76,7 +76,8 @@ Use the AIPROXY_TOKEN environment variable. DON’T commit your AI Proxy token t
 Use your AI Proxy token. Your AI Proxy token now has a $1 limit. You may use it. If you run out of tokens, ask the TDS team for more. (But try and avoid that.)
 Stick to GPT-4o-Mini. This is the only generation model that AI Proxy currently supports. When this page says “LLM”, it means GPT-4o-Mini.
 Keep your prompts short and concise. Each call to /run and /read must complete within 20 seconds.
-Evaluation
+
+## Evaluation
 Here’s an example of how the evaluation script will work on Task A2.
 
 Run podman run $IMAGE_NAME -e AIPROXY_TOKEN=$AIPROXY_TOKEN -p 8000:8000
