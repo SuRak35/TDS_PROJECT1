@@ -13,18 +13,19 @@ from fastapi import FastAPI, HTTPException
 from datetime import datetime
 from bs4 import BeautifulSoup
 from PIL import Image
-from typing import Optional
-import subprocess
 import re
-from collections import Counter
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Initialize FastAPI
 app = FastAPI()
 
 # Get AI Proxy Token
-AIPROXY_TOKEN = os.environ.get("AIPROXY_TOKEN")
+AIPROXY_TOKEN = os.getenv("AIPROXY_TOKEN")
 if not AIPROXY_TOKEN:
-    raise ValueError("Missing AI Proxy Token. Set the environment variable.")
+    raise ValueError("Missing AIPROXY_TOKEN. Set it in an environment variable.")
 
 openai.api_key = AIPROXY_TOKEN
 
@@ -36,11 +37,18 @@ def call_llm(prompt, instruction):
     )
     return response["choices"][0]["message"]["content"].strip()
 
-# Function to read a file
+# Function to read a file securely
 def read_file(path):
-    if path.startswith("/data/") and os.path.exists(path):
-        with open(path, "r", encoding="utf-8") as file:
+    base_dir = "/data/"
+    abs_path = os.path.abspath(path)
+
+    if not abs_path.startswith(base_dir):  # Prevent directory traversal attacks
+        raise HTTPException(status_code=403, detail="Access denied.")
+
+    if os.path.exists(abs_path):
+        with open(abs_path, "r", encoding="utf-8") as file:
             return file.read()
+    
     return None
 
 # Function to execute tasks using LLM-based parsing
@@ -49,6 +57,7 @@ def execute_task(task: str):
     instructions = """
     Identify which predefined function should handle the given task description.
     Return ONLY the function name (e.g., count_wednesdays, sort_contacts, extract_email) without any explanation.
+    If unsure, return 'unknown_task'.
     """
     function_name = call_llm(task, instructions)
 
@@ -74,26 +83,41 @@ def execute_task(task: str):
     }
 
     if function_name in task_mapping:
-        return task_mapping[function_name]()
+        return task_mapping[function_name](task) if "datagen" in function_name else task_mapping[function_name]()
     else:
-        raise ValueError("Task not recognized.")
+        raise ValueError(f"Task '{task}' not recognized by the agent.")
 
 # **Phase A Tasks**
 def install_uv_and_run_datagen():
+    """Runs datagen.py with your email."""
+    email = "24ds1000046@ds.study.iitm.ac.in"
     os.system("pip install uv")
-    os.system("uv run https://raw.githubusercontent.com/sanand0/tools-in-data-science-public/tds-2025-01/project-1/datagen.py user@example.com")
-    return "Datagen script executed."
+    os.system(f"uv run https://raw.githubusercontent.com/sanand0/tools-in-data-science-public/tds-2025-01/project-1/datagen.py {email}")
+    return f"Datagen script executed for {email}."
 
 def format_markdown():
     os.system("npx prettier@3.4.2 --write /data/format.md")
     return "Markdown formatted."
 
 def count_wednesdays():
+    date_formats = ["%Y-%m-%d", "%d-%b-%Y", "%b %d, %Y", "%Y/%m/%d %H:%M:%S"]
+    
     with open("/data/dates.txt", "r") as file:
         dates = file.readlines()
-    wednesday_count = sum(1 for date in dates if datetime.strptime(date.strip(), "%Y-%m-%d").weekday() == 2)
+
+    wednesday_count = 0
+    for date in dates:
+        for fmt in date_formats:
+            try:
+                if datetime.strptime(date.strip(), fmt).weekday() == 2:
+                    wednesday_count += 1
+                break
+            except ValueError:
+                continue
+    
     with open("/data/dates-wednesdays.txt", "w") as file:
         file.write(str(wednesday_count))
+    
     return "Wednesdays counted."
 
 def sort_contacts():
@@ -200,6 +224,19 @@ def convert_markdown():
     with open("/data/sample.html", "w") as file:
         file.write(html_content)
     return "Markdown converted."
+
+def filter_csv():
+    column_details = call_llm("Filter CSV file in /data/sample.csv", "Extract column name and value for filtering.")
+    
+    match = re.search(r"column\s*'(\w+)'\s*with\s*value\s*'(\w+)'", column_details)
+    if not match:
+        raise ValueError("Could not extract column name and value.")
+
+    column_name, value = match.groups()
+    df = pd.read_csv("/data/sample.csv")
+    filtered_df = df[df[column_name] == value]
+    filtered_df.to_json("/data/filtered.json", orient="records")
+    return "CSV filtered."
 
 # API Endpoints
 @app.post("/run")
