@@ -62,7 +62,7 @@ def execute_task(task: str):
     function_name = call_llm(task, instructions)
 
     task_mapping = {
-        "install_uv_and_run_datagen": install_uv_and_run_datagen,
+        "get_markdown": get_markdown,
         "format_markdown": format_markdown,
         "count_wednesdays": count_wednesdays,
         "sort_contacts": sort_contacts,
@@ -88,11 +88,14 @@ def execute_task(task: str):
         raise ValueError(f"Task '{task}' not recognized by the agent.")
 
 # **Phase A Tasks**
-def install_uv_and_run_datagen():
-    """Runs datagen.py with your email."""
-    email = "24ds1000046@ds.study.iitm.ac.in"
-    os.system("pip install uv")
-    os.system(f"uv run https://raw.githubusercontent.com/sanand0/tools-in-data-science-public/tds-2025-01/project-1/datagen.py {email}")
+def get_markdown(email: str):
+    """Installs uv (if required) and runs datagen.py with only the provided email as an argument."""
+    if not email:
+        raise ValueError("Email is required to run datagen.py")
+
+    os.system("pip install uv")  # Ensure uv is installed
+    os.system(f"uv run https://raw.githubusercontent.com/sanand0/tools-in-data-science-public/tds-2025-01/project-1/datagen.py \"{email}\"")
+    
     return f"Datagen script executed for {email}."
 
 def format_markdown():
