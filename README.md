@@ -1,26 +1,26 @@
 # Project 1 - LLM-based Automation Agent
 
 ## Background
-You have joined the operations team at DataWorks Solutions, a company that processes large volumes of log files, reports, and code artifacts to generate actionable insights for internal stakeholders. In order to improve operational efficiency and consistency, the company has mandated that routine tasks be automated and integrated into their Continuous Integration (CI) pipeline.
+#### You have joined the operations team at DataWorks Solutions, a company that processes large volumes of log files, reports, and code artifacts to generate actionable insights for internal stakeholders. In order to improve operational efficiency and consistency, the company has mandated that routine tasks be automated and integrated into their Continuous Integration (CI) pipeline.
 
-Due to the unpredictable nature of incoming data (from logs, ticket systems, source code, surveys, etc.) the team has decided to use a Large Language Model (LLM) as an intermediate transformer. In this role, the LLM will perform small, reasonably deterministic tasks.
+#### Due to the unpredictable nature of incoming data (from logs, ticket systems, source code, surveys, etc.) the team has decided to use a Large Language Model (LLM) as an intermediate transformer. In this role, the LLM will perform small, reasonably deterministic tasks.
 
-Your assignment is to build an automation agent that accepts plain‑English tasks, carries out the required (multi‑step) process leveraging an LLM where required. The finished processing artifacts must be exactly verifiable against pre‑computed expected results.
+#### Your assignment is to build an automation agent that accepts plain‑English tasks, carries out the required (multi‑step) process leveraging an LLM where required. The finished processing artifacts must be exactly verifiable against pre‑computed expected results.
 
 ## Create an API
-Write an application that exposes an API with the following endpoints:
+#### Write an application that exposes an API with the following endpoints:
 
-POST /run?task=<task description> Executes a plain‑English task. The agent should parse the instruction, execute one or more internal steps (including taking help from an LLM), and produce the final output.
-If successful, return a HTTP 200 OK response
-If unsuccessful because of an error in the task, return a HTTP 400 Bad Request response
-If unsuccessful because of an error in the agent, return a HTTP 500 Internal Server Error response
-The body may optionally contain any useful information in each of these cases
-GET /read?path=<file path> Returns the content of the specified file. This is critical for verification of the exact output.
-If successful, return a HTTP 200 OK response with the file content as plain text
-If the file does not exist, return a HTTP 404 Not Found response and an empty body
+#### POST /run?task=<task description> Executes a plain‑English task. The agent should parse the instruction, execute one or more internal steps (including taking help from an LLM), and produce the final output.
+#### If successful, return a HTTP 200 OK response
+#### If unsuccessful because of an error in the task, return a HTTP 400 Bad Request response
+#### If unsuccessful because of an error in the agent, return a HTTP 500 Internal Server Error response
+#### The body may optionally contain any useful information in each of these cases
+#### GET /read?path=<file path> Returns the content of the specified file. This is critical for verification of the exact output.
+#### If successful, return a HTTP 200 OK response with the file content as plain text
+#### If the file does not exist, return a HTTP 404 Not Found response and an empty body
 
 ## Phase A: Handle Operations Tasks
-The DataWorks operations team has identified these tasks that need to be automated:
+#### The DataWorks operations team has identified these tasks that need to be automated:
 
 ### A1. Install uv (if required) and run https://raw.githubusercontent.com/sanand0/tools-in-data-science-public/tds-2025-01/project-1/datagen.py with ${user.email} as the only argument. (NOTE: This will generate data files required for the next tasks.)
 ### A2. Format the contents of /data/format.md using prettier@3.4.2, updating the file in-place
@@ -32,15 +32,15 @@ The DataWorks operations team has identified these tasks that need to be automat
 ### A8. /data/credit-card.png contains a credit card number. Pass the image to an LLM, have it extract the card number, and write it without spaces to /data/credit-card.txt
 ### A9. /data/comments.txt contains a list of comments, one per line. Using embeddings, find the most similar pair of comments and write them to /data/comments-similar.txt, one per line
 ### A10. The SQLite database file /data/ticket-sales.db has a tickets with columns type, units, and price. Each row is a customer bid for a concert ticket. What is the total sales of all the items in the “Gold” ticket type? Write the number in /data/ticket-sales-gold.txt
-Developers will call the /run?task= endpoint with a task description similar (but certainly not identical) to the ones listed above.
+#### Developers will call the /run?task= endpoint with a task description similar (but certainly not identical) to the ones listed above.
 
-For example, Task A3 can be written in these ways - all are equivalent.
+#### For example, Task A3 can be written in these ways - all are equivalent.
 
-The file /data/dates.txt contains a list of dates, one per line. Count the number of Wednesdays in the list, and write just the number to /data/dates-wednesdays.txt
-Write the # of Thursdays in /data/extracts.txt into /data/extracts-count.txt
+#### The file /data/dates.txt contains a list of dates, one per line. Count the number of Wednesdays in the list, and write just the number to /data/dates-wednesdays.txt
+#### Write the # of Thursdays in /data/extracts.txt into /data/extracts-count.txt
 /data/contents.log में कितने रविवार हैं? गिनो और /data/contents.dates में लिखो
 /data/contents.logல எத்தனை ஞாயிறு இருக்குனு கணக்கு போட்டு, அதை /data/contents.datesல எழுது
-Your task is to build an agent that uses an LLM to parse the task description and execute the required steps.
+#### Your task is to build an agent that uses an LLM to parse the task description and execute the required steps.
 
 ## Phase B: Handle Business Tasks
 The DataWorks security team has added the following requirements. No matter what the task is, the agent must ensure that:
