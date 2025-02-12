@@ -27,15 +27,23 @@ AIPROXY_TOKEN = os.getenv("AIPROXY_TOKEN")
 if not AIPROXY_TOKEN:
     raise ValueError("Missing AIPROXY_TOKEN. Set it in an environment variable.")
 
-openai.api_key = AIPROXY_TOKEN
-
-# Function to call LLM
+# Function to call LLM using AI Proxy
 def call_llm(prompt, instruction):
-    response = openai.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": f"{instruction}\n{prompt}"}]
-    )
-    return response["choices"][0]["message"]["content"].strip()
+    url = "https://aiproxy.sanand.workers.dev/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {AIPROXY_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": "gpt-4o-mini",
+        "messages": [{"role": "user", "content": f"{instruction}\n{prompt}"}]
+    }
+    response = requests.post(url, headers=headers, json=data)
+    
+    if response.status_code == 200:
+        return response.json()["choices"][0]["message"]["content"].strip()
+    else:
+        raise Exception(f"Failed to call LLM: {response.status_code}, {response.text}")
 
 # Function to read a file securely
 def read_file(path):
