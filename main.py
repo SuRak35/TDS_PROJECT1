@@ -31,7 +31,7 @@ openai.api_key = AIPROXY_TOKEN
 
 # Function to call LLM
 def call_llm(prompt, instruction):
-    response = openai.chat_completions.create(
+    response = openai.ChatCompletion.create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": f"{instruction}\n{prompt}"}]
     )
