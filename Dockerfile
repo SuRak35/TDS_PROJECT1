@@ -1,27 +1,19 @@
-# Use the official Python image
 FROM python:3.12-slim-bookworm
 
-# Install curl and certificates for uv installation
+# The installer requires curl (and certificates) to download the release archive
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
 
-# Download and install uv
+# Download the latest installer
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
+
+# Run the installer then remove it
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 
-# Ensure uv is on the PATH
+# Ensure the installed binary is on the `PATH`
 ENV PATH="/root/.local/bin/:$PATH"
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the application files
-COPY . .
+COPY main.py /app
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Expose the application port
-EXPOSE 8000
-
-# Run the application
-CMD ["python", "main.py"]
+CMD ["uv", "run", "main.py"]
